@@ -14,23 +14,27 @@ private:
     QString serverIp;
     int serverPort;
     quint16 blockSize;
+    quint8 command;
     QString errorValue;
     bool serverStatus;
-    void tryAuth(QString name, QString password);
-    void tryConnect(QString serverIp = "localhost");
+    bool online;
+    void tryAuth();
 private slots:
     void connected();
     void disconnected();
     void readyRead();
-    void error();
+    void error(QAbstractSocket::SocketError error);
 public:
     explicit Client(QObject *parent = 0);
     QString errorString();
+
+    void tryConnect(QString serverIp = "localhost", QString name="", QString password="");
 signals:
     void clientConnected();
     void clientError();
     void clientDisconnected();
-    void clientReadyRead();
+    void clientMessage(QString message);
+    void clientAuthProblem();
 public slots:
 
 };
