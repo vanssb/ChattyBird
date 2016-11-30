@@ -33,12 +33,17 @@ QString Client::errorString(){
     return errorValue;
 }
 
+bool Client::isOnline(){
+    return online;
+}
+
 void Client::connected(){
     tryAuth();
 }
 
 void Client::disconnected(){
-
+    online = false;
+    emit clientDisconnected();
 }
 
 void Client::readyRead(){
@@ -66,24 +71,22 @@ void Client::readyRead(){
         in >> code;
         if (code == 200){
             //авторизованы
+            // нужно получить ключ сессии
             online = true;
             emit clientConnected();
         }
         else{
             QString error;
             in >> error;
-            errorValue = QString::number(code) + " : " + error;
-            emit clientAuthProblem();
+            errorValue = error;
+            emit clientAuthProblem(QAbstractSocket::SocketError());
         }
     break;
     }
 }
 
-void Client::error(QAbstractSocket::SocketError){
+void Client::error(QAbstractSocket::SocketError error){
     errorValue = socket.errorString();
-    emit clientError();
+    emit clientError(error);
 }
 
-void Client::clientAuthProblem(){
-
-}

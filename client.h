@@ -27,16 +27,14 @@ private slots:
 public:
     explicit Client(QObject *parent = 0);
     QString errorString();
-
+    bool isOnline();
     void tryConnect(QString serverIp = "localhost", QString name="", QString password="");
 signals:
     void clientConnected();
-    void clientError();
+    void clientError(QAbstractSocket::SocketError error);
     void clientDisconnected();
     void clientMessage(QString message);
-    void clientAuthProblem();
-public slots:
-
+    void clientAuthProblem(QAbstractSocket::SocketError);
 };
 
 #endif // CLIENT_H

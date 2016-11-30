@@ -14,12 +14,18 @@ class MainWindow : public QMainWindow
 private:
     Ui::MainWindow *ui;
     Client client;
+    int dx,dy;
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 private slots:
     void connected();
     void disconnected();
+    void error(QAbstractSocket::SocketError);
+    void signIn();
+    void mouseMoveEvent( QMouseEvent* e );
+    void mousePressEvent( QMouseEvent* e );
+    void mouseReleaseEvent( QMouseEvent* e );
 };
 
 #endif // MAINWINDOW_H
