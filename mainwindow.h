@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <client.h>
+#include "codes.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,6 +24,8 @@ private slots:
     void disconnected();
     void error(QAbstractSocket::SocketError);
     void signIn();
+    void sendMessage();
+    void newMessage(QString text);
     void mouseMoveEvent( QMouseEvent* e );
     void mousePressEvent( QMouseEvent* e );
     void mouseReleaseEvent( QMouseEvent* e );

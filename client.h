@@ -10,15 +10,16 @@ class Client : public QObject
 private:
     QString name;
     QString password;
-    QTcpSocket socket;
+    QTcpSocket* socket;
     QString serverIp;
     int serverPort;
-    quint16 blockSize;
+    quint64 blockSize;
     quint8 command;
     QString errorValue;
     bool serverStatus;
     bool online;
     void tryAuth();
+    void initialize();
 private slots:
     void connected();
     void disconnected();
@@ -26,9 +27,13 @@ private slots:
     void error(QAbstractSocket::SocketError error);
 public:
     explicit Client(QObject *parent = 0);
+    explicit Client(QTcpSocket* socket, QObject *parent = 0);
+    ~Client();
     QString errorString();
     bool isOnline();
     void tryConnect(QString serverIp = "localhost", QString name="", QString password="");
+    void disconnect();
+    void sendPublicMessage(QString text);
 signals:
     void clientConnected();
     void clientError(QAbstractSocket::SocketError error);

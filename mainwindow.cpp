@@ -13,13 +13,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->errorLine->setVisible(false);
 
-    connect(ui->signInButton, SIGNAL(clicked(bool)), this, SLOT(signIn()) );
+    connect( ui->signInButton, SIGNAL(clicked(bool)), this, SLOT(signIn()) );
     connect( ui->quitButton, SIGNAL(clicked(bool)), this, SLOT(close()) );
+    connect( ui->Send, SIGNAL(clicked(bool)), this, SLOT(sendMessage()) );
 
+    connect( &client, SIGNAL(clientMessage(QString)), this, SLOT(newMessage(QString)) );
     connect( &client, SIGNAL(clientConnected()), this, SLOT(connected()) );
     connect( &client, SIGNAL(clientAuthProblem(QAbstractSocket::SocketError)), this, SLOT(error(QAbstractSocket::SocketError)) );
     connect( &client, SIGNAL(clientError(QAbstractSocket::SocketError)), this, SLOT(error(QAbstractSocket::SocketError)) );
-
+    ui->stackedWidget->setCurrentWidget(ui->login);
+    ui->friends->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -28,7 +31,7 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::connected(){
-
+    ui->stackedWidget->setCurrentWidget(ui->chat);
 }
 
 void MainWindow::disconnected(){
@@ -43,6 +46,16 @@ void MainWindow::error(QAbstractSocket::SocketError){
 
 void MainWindow::signIn(){
     client.tryConnect("localhost",ui->loginEdit->text(), ui->passwordEdit->text());
+}
+
+void MainWindow::sendMessage(){
+    QString text = ui->message->text();
+    client.sendPublicMessage(text);
+    ui->message->clear();
+}
+
+void MainWindow::newMessage(QString text){
+    ui->messages->append(text);
 }
 
 void MainWindow::mouseMoveEvent( QMouseEvent* e ) {
@@ -69,3 +82,5 @@ void MainWindow::mouseReleaseEvent( QMouseEvent* e ) {
         setCursor( Qt::ArrowCursor );
     }
 }
+
+

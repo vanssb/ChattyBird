@@ -1,30 +1,45 @@
 #include "client.h"
 #include <QDataStream>
+#include "codes.h"
 
 Client::Client(QObject *parent) : QObject(parent)
 {
-    serverPort = 1234;
+    socket = new QTcpSocket(this);
+    initialize();
+}
 
-    connect( &socket, SIGNAL(connected()), this, SLOT(connected()) );
-    connect( &socket, SIGNAL(disconnected()), this, SLOT(disconnected()) );
-    connect( &socket, SIGNAL(readyRead()), this, SLOT(readyRead()) );
-    connect( &socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(error(QAbstractSocket::SocketError)) );
+Client::Client(QTcpSocket* socket,QObject *parent) : QObject(parent){
+    this->socket = socket;
+    initialize();
+}
+
+void Client::initialize(){
+    blockSize = 0;
+    serverPort = 1234;
+    connect( this->socket, SIGNAL(connected()), this, SLOT(connected()) );
+    connect( this->socket, SIGNAL(disconnected()), this, SLOT(disconnected()) );
+    connect( this->socket, SIGNAL(readyRead()), this, SLOT(readyRead()) );
+    connect( this->socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(error(QAbstractSocket::SocketError)) );
+}
+
+Client::~Client(){
+    delete socket;
 }
 
 void Client::tryAuth(){
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     // надо придумать коды ко всем операциям
-    command = 100;
-    out << (quint16)0 << (quint8)0  << name << password;
+    command = Codes::auth;
+    out << (quint64)0 << command  << name << password;
     out.device()->seek(0);
 //вписываем размер блока на зарезервированное место
-    out << (quint16)(block.size() - sizeof(quint16)) << 100;
-    socket.write(block);
+    out << (quint64)(block.size() - sizeof(quint64));
+    socket->write(block);
 }
 
 void Client::tryConnect(QString serverIp, QString name, QString password){
-    socket.connectToHost(serverIp, serverPort);
+    socket->connectToHost(serverIp, serverPort);
     this->name = name;
     this->password = password;
 }
@@ -47,46 +62,71 @@ void Client::disconnected(){
 }
 
 void Client::readyRead(){
-    QDataStream in(&socket);
-
+    QDataStream in(socket);
     if (blockSize == 0) {
         //Ожидаем пока будет получен хотя бы размер блока
-        if (socket.bytesAvailable() < (int)sizeof(quint16))
+        if (socket->bytesAvailable() < (int)sizeof(quint64))
             return;
-        //считываем размер блока (2 байта)
+        //считываем размер блока Int
             in >> blockSize;
     }
     //ждем пока блок прийдет полностью
-    if (socket.bytesAvailable() < blockSize)
+    if (socket->bytesAvailable() < blockSize)
         return;
     else
         //можно принимать новый блок
         blockSize = 0;
-    //3 байт - команда серверу
+    //3 байт - комманда
     quint8 command;
     in >> command;
     switch (command){
-    case 100:
+    case Codes::auth:
         int code;
         in >> code;
-        if (code == 200){
-            //авторизованы
-            // нужно получить ключ сессии
+        switch (code) {
+        case Codes::authSuccess:
             online = true;
             emit clientConnected();
-        }
-        else{
-            QString error;
-            in >> error;
-            errorValue = error;
+            break;
+        case Codes::authProblem:
+            errorValue = "Authorization problem, try again";
             emit clientAuthProblem(QAbstractSocket::SocketError());
+            //disconnect();
+        break;
+        case Codes::authIncorrectPair:
+            errorValue = "Incorrect pair, try again";
+            emit clientAuthProblem(QAbstractSocket::SocketError());
+            //disconnect();
+        break;
         }
+    break;
+    case Codes::messagePublic:
+        QString text;
+        in >> text;
+        emit clientMessage(text);
     break;
     }
 }
 
 void Client::error(QAbstractSocket::SocketError error){
-    errorValue = socket.errorString();
+    errorValue = socket->errorString();
     emit clientError(error);
 }
 
+void Client::disconnect(){
+    socket->close();
+    online = false;
+}
+
+void Client::sendPublicMessage(QString text){
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    // надо придумать коды ко всем операциям
+    quint8 command;
+    command = Codes::messagePublic;
+    out << (quint64)0 << command  << text;
+    out.device()->seek(0);
+//вписываем размер блока на зарезервированное место
+    out << (quint64)(block.size() - sizeof(quint64));
+    socket->write(block);
+}

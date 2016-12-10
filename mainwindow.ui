@@ -203,7 +203,7 @@ QLineEdit{
        <number>0</number>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="login">
        <property name="autoFillBackground">
@@ -349,7 +349,7 @@ QLineEdit{
       <widget class="QWidget" name="chat">
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="5">
-         <widget class="QListWidget" name="listWidget">
+         <widget class="QListWidget" name="friends">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -367,7 +367,7 @@ QLineEdit{
         <item row="0" column="2">
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QTextEdit" name="textEdit">
+           <widget class="QTextEdit" name="messages">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -382,7 +382,7 @@ QLineEdit{
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
-             <widget class="QLineEdit" name="lineEdit_3">
+             <widget class="QLineEdit" name="message">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -392,7 +392,7 @@ QLineEdit{
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_2">
+             <widget class="QPushButton" name="Send">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -400,7 +400,7 @@ QLineEdit{
                </size>
               </property>
               <property name="text">
-               <string>PushButton</string>
+               <string>Send</string>
               </property>
              </widget>
             </item>
