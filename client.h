@@ -8,8 +8,7 @@ class Client : public QObject
 {
     Q_OBJECT
 private:
-    QString name;
-    QString password;
+    QString name, nickname, password;
     QTcpSocket* socket;
     QString serverIp;
     int serverPort;
@@ -18,8 +17,10 @@ private:
     QString errorValue;
     bool serverStatus;
     bool online;
-    void tryAuth();
+    void authorize();
+    void registrate();
     void initialize();
+    void parseData(quint8 command, QDataStream &in);
 private slots:
     void connected();
     void disconnected();
@@ -31,15 +32,19 @@ public:
     ~Client();
     QString errorString();
     bool isOnline();
-    void tryConnect(QString serverIp = "localhost", QString name="", QString password="");
+    void trySignIn(QString name = "", QString password = "");
+    void trySignUp(QString name = "", QString password="", QString nickname = "");
+    void setHost(QString hostIp = "localhost", int hostPort = 1234);
     void disconnect();
     void sendPublicMessage(QString text);
 signals:
     void clientConnected();
-    void clientError(QAbstractSocket::SocketError error);
+    void clientError();
     void clientDisconnected();
     void clientMessage(QString message);
-    void clientAuthProblem(QAbstractSocket::SocketError);
+    void clientAuthProblem();
+    void clientSignUpSuccess();
+    void clientSignUpError();
 };
 
 #endif // CLIENT_H

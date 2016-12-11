@@ -14,14 +14,14 @@
    <string>Chatty Bird</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">#loginFrame {
+   <string notr="true">#signInFrame, #signUpFrame {
 	background: qlineargradient(spread:pad, x1: 0, y1: 0, x2: 0, y2: 1,  stop:0 rgba(170, 170, 170, 255), stop:1 rgba(220, 220, 220, 255));
 	border: 1px solid gray;
 	padding: 5px;
 	border-radius: 10px;
 }
 
-#login{
+#signIn, #signUp{
 	border-image: url(:/background.jpg) 0 0 0 0 stretch stretch;
 }
 
@@ -31,20 +31,20 @@ QLineEdit{
 	border-radius: 5px;
 }
 
-#signInButton{
+QPushButton {
 	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(242, 91, 38, 255), stop:1 rgba(232, 91, 38, 255) );
 	border: 1px solid gray;
 	padding: 3px;
 	border-radius: 3px;
 }
 
-#signInButton:hover {
+QPushButton:hover {
     background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(232, 91, 38, 255), stop:1 rgba(242, 91, 38, 255) );
     border-color: rgba(0, 146, 69, 255);
     border-style: inset;
 }
 
-#headerSubstrate{
+#header{
 	background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(212, 71, 18, 255), stop:1 rgba(242, 91, 38, 255) );
 }
 
@@ -54,10 +54,7 @@ QLineEdit{
    <property name="styleSheet">
     <string notr="true"/>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout_4">
-    <property name="spacing">
-     <number>0</number>
-    </property>
+   <layout class="QGridLayout" name="gridLayout_2">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -70,8 +67,11 @@ QLineEdit{
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <item>
-     <widget class="QGroupBox" name="headerSubstrate">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QGroupBox" name="header">
       <property name="title">
        <string/>
       </property>
@@ -181,17 +181,7 @@ QLineEdit{
       </layout>
      </widget>
     </item>
-    <item>
-     <widget class="Line" name="line">
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item>
+    <item row="1" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="autoFillBackground">
        <bool>true</bool>
@@ -205,7 +195,7 @@ QLineEdit{
       <property name="currentIndex">
        <number>1</number>
       </property>
-      <widget class="QWidget" name="login">
+      <widget class="QWidget" name="signIn">
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -266,7 +256,7 @@ QLineEdit{
          </spacer>
         </item>
         <item row="1" column="1">
-         <widget class="QFrame" name="loginFrame">
+         <widget class="QFrame" name="signInFrame">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -274,6 +264,21 @@ QLineEdit{
            </sizepolicy>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>3</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
             <widget class="QLabel" name="errorLine">
              <property name="enabled">
@@ -335,14 +340,154 @@ QLineEdit{
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="signInButton">
-             <property name="text">
-              <string>Sign in</string>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <property name="spacing">
+              <number>0</number>
              </property>
-            </widget>
+             <property name="sizeConstraint">
+              <enum>QLayout::SetMaximumSize</enum>
+             </property>
+             <item>
+              <widget class="QPushButton" name="signInButton">
+               <property name="text">
+                <string>Sign In</string>
+               </property>
+               <property name="autoDefault">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="signUpTransfer">
+               <property name="text">
+                <string>Sign Up</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="signUp">
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="1">
+         <spacer name="verticalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>126</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="0">
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>230</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="1">
+         <widget class="QFrame" name="signUpFrame">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>3</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>5</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="errorLineSignUp">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="nicknameEditSignUp"/>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="loginEditSignUp"/>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="passwordEditSignUp"/>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="signUpButton">
+               <property name="text">
+                <string>Sign Up</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="signInTransfer">
+               <property name="text">
+                <string>Back</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>230</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="1">
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>126</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
@@ -381,6 +526,9 @@ QLineEdit{
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <item>
              <widget class="QLineEdit" name="message">
               <property name="minimumSize">
@@ -392,15 +540,21 @@ QLineEdit{
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="Send">
+             <widget class="QPushButton" name="send">
               <property name="minimumSize">
                <size>
-                <width>0</width>
+                <width>100</width>
                 <height>26</height>
                </size>
               </property>
               <property name="text">
                <string>Send</string>
+              </property>
+              <property name="autoDefault">
+               <bool>true</bool>
+              </property>
+              <property name="default">
+               <bool>true</bool>
               </property>
              </widget>
             </item>

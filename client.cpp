@@ -15,7 +15,6 @@ Client::Client(QTcpSocket* socket,QObject *parent) : QObject(parent){
 
 void Client::initialize(){
     blockSize = 0;
-    serverPort = 1234;
     connect( this->socket, SIGNAL(connected()), this, SLOT(connected()) );
     connect( this->socket, SIGNAL(disconnected()), this, SLOT(disconnected()) );
     connect( this->socket, SIGNAL(readyRead()), this, SLOT(readyRead()) );
@@ -26,11 +25,11 @@ Client::~Client(){
     delete socket;
 }
 
-void Client::tryAuth(){
+void Client::authorize(){
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     // надо придумать коды ко всем операциям
-    command = Codes::auth;
+    command = Codes::authRequest;
     out << (quint64)0 << command  << name << password;
     out.device()->seek(0);
 //вписываем размер блока на зарезервированное место
@@ -38,10 +37,33 @@ void Client::tryAuth(){
     socket->write(block);
 }
 
-void Client::tryConnect(QString serverIp, QString name, QString password){
+void Client::registrate(){
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    // надо придумать коды ко всем операциям
+    command = Codes::signUpRequest;
+    out << (quint64)0 << command  << name << password << nickname;
+    out.device()->seek(0);
+//вписываем размер блока на зарезервированное место
+    out << (quint64)(block.size() - sizeof(quint64));
+    socket->write(block);
+}
+
+void Client::trySignIn(QString name, QString password){
+    socket->close();
     socket->connectToHost(serverIp, serverPort);
     this->name = name;
     this->password = password;
+    command = Codes::authRequest;
+}
+
+void Client::trySignUp(QString name, QString password, QString nickname){
+    socket->close();
+    socket->connectToHost(serverIp, serverPort);
+    this->name = name;
+    this->password = password;
+    this->nickname = nickname;
+    command = Codes::signUpRequest;
 }
 
 QString Client::errorString(){
@@ -53,7 +75,14 @@ bool Client::isOnline(){
 }
 
 void Client::connected(){
-    tryAuth();
+    switch (command) {
+    case Codes::authRequest:
+        authorize();
+    break;
+    case Codes::signUpRequest:
+        registrate();
+    break;
+    }
 }
 
 void Client::disconnected(){
@@ -79,43 +108,18 @@ void Client::readyRead(){
     //3 байт - комманда
     quint8 command;
     in >> command;
-    switch (command){
-    case Codes::auth:
-        int code;
-        in >> code;
-        switch (code) {
-        case Codes::authSuccess:
-            online = true;
-            emit clientConnected();
-            break;
-        case Codes::authProblem:
-            errorValue = "Authorization problem, try again";
-            emit clientAuthProblem(QAbstractSocket::SocketError());
-            //disconnect();
-        break;
-        case Codes::authIncorrectPair:
-            errorValue = "Incorrect pair, try again";
-            emit clientAuthProblem(QAbstractSocket::SocketError());
-            //disconnect();
-        break;
-        }
-    break;
-    case Codes::messagePublic:
-        QString text;
-        in >> text;
-        emit clientMessage(text);
-    break;
-    }
+    parseData(command, in);
 }
 
 void Client::error(QAbstractSocket::SocketError error){
     errorValue = socket->errorString();
-    emit clientError(error);
+    emit clientError();
 }
 
 void Client::disconnect(){
     socket->close();
     online = false;
+    emit clientDisconnected();
 }
 
 void Client::sendPublicMessage(QString text){
@@ -129,4 +133,53 @@ void Client::sendPublicMessage(QString text){
 //вписываем размер блока на зарезервированное место
     out << (quint64)(block.size() - sizeof(quint64));
     socket->write(block);
+}
+
+void Client::parseData(quint8 command, QDataStream &in){
+    switch (command){
+    case Codes::authSuccess:
+        online = true;
+        emit clientConnected();
+    break;
+    case Codes::authProblem:
+        errorValue = "Authorization problem, try again";
+        emit clientAuthProblem();
+        socket->close();
+    break;
+    case Codes::authIncorrectPair:
+        errorValue = "Incorrect pair, try again";
+        emit clientAuthProblem();
+        socket->close();
+    break;
+    case Codes::authAlreadyOnline:
+        errorValue = "User is already online";
+        emit clientAuthProblem();
+        socket->close();
+    break;
+    case Codes::messagePublic:{
+        QString sender;
+        in >> sender;
+        QString text;
+        in >> text;
+        text = sender + ": "+text;
+        emit clientMessage( text );
+    break;
+    }
+    case Codes::signUpSuccess:
+        emit clientSignUpSuccess();
+    break;
+    case Codes::signUpProblem:
+        errorValue = "Some problem via registration";
+        emit clientSignUpError();
+    break;
+    case Codes::signUpNameNotVacant:
+        errorValue = "Name or nickname are not vacant";
+        emit clientSignUpError();
+    break;
+    }
+}
+
+void Client::setHost(QString hostIp, int hostPort){
+    serverIp = hostIp;
+    serverPort = hostPort;
 }
